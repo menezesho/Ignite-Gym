@@ -8,7 +8,7 @@ import { Button } from "@components/Button";
 
 export function SignUp() {
   return (
-    <VStack flex={1} bg={'gray.700'}>
+    <VStack flex={1}>
       <Image
         source={BackgroundImg}
         alt='Pessoas treinando'
