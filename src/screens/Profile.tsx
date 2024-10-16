@@ -1,17 +1,65 @@
-import { Center, Heading, ScrollView, Text, VStack } from "native-base";
+import { useState } from "react";
+import { Alert, TouchableOpacity } from "react-native";
+import { Center, Heading, ScrollView, Text, VStack, useToast } from "native-base";
+
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 import { ScreenHeader } from "@components/headers/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
-import { useState } from "react";
 import { Skeleton } from "@components/Skeleton";
-import { TouchableOpacity } from "react-native";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
 const PHOTO_SIZE = 33;
+const MAX_PHOTO_SIZE_IN_MB = 1;
 
 export function Profile() {
+  const toast = useToast();
+
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
+  const [userPhoto, setUserPhoto] = useState('https://github.com/menezesho.png');
+
+  async function handleUserPhotoSelect() {
+    setPhotoIsLoading(true);
+
+    try {
+      const photo = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        selectionLimit: 1,
+        allowsEditing: true,
+        aspect: [4, 4],
+        quality: 1,
+      });
+
+      if (photo.canceled) {
+        return;
+      }
+
+      const photoUri = photo.assets[0].uri;
+
+      const photoInfo = await FileSystem.getInfoAsync(photoUri);
+
+      if (!photoInfo.exists) {
+        throw new Error('Foto não encontrada');
+      }
+
+      if (photoInfo.size / 1024 / 1024 > MAX_PHOTO_SIZE_IN_MB) {
+        toast.show({
+          title: `O tamanho máximo permitido da foto é de ${MAX_PHOTO_SIZE_IN_MB}MB`,
+          placement: 'top',
+          bgColor: 'red.500',
+        });
+        return;
+      }
+
+      setUserPhoto(photoUri);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setPhotoIsLoading(false);
+    }
+  }
 
   return (
     <VStack flex={1}>
@@ -26,13 +74,13 @@ export function Profile() {
               rounded='full'
             /> :
             <UserPhoto
-              source={{ uri: 'https://github.com/menezesho.png' }}
+              source={{ uri: userPhoto }}
               alt='Foto de perfil do usuário'
               size={PHOTO_SIZE}
             />
           }
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleUserPhotoSelect}>
             <Text color='green.500' fontWeight='bold' fontSize='md' mt={2} mb={8}>
               Alterar foto
             </Text>
