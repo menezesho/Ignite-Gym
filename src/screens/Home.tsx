@@ -1,14 +1,22 @@
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { FlatList, Heading, HStack, Text, VStack } from "native-base";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
-import { HomeHeader } from "@components/HomeHeader";
+import { HomeHeader } from "@components/headers/HomeHeader";
 import { Group } from "@components/Group";
 import { ExerciseCard } from "@components/ExerciseCard";
 
 export function Home() {
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
+
   const [selectedGroup, setSelectedGroup] = useState('costas');
   const [groups, setGroups] = useState(['costas', 'ombros', 'biceps', 'triceps', 'peito', 'pernas', 'abdomen']);
   const [exercises, setExercises] = useState(['Remada lateral', 'Puxada frontal', 'Remada unilateral']);
+
+  function handleOpenExerciseDetails() {
+    navigation.navigate('exercise');
+  }
 
   return (
     <VStack flex={1}>
@@ -50,6 +58,7 @@ export function Home() {
               name={item}
               image='https://conteudo.imguol.com.br/c/entretenimento/f9/2019/08/27/remada-na-maquina-1566927337178_v2_1036x685.jpg'
               description='3 séries de 10 repetições'
+              onPress={handleOpenExerciseDetails}
             />
           )}
           showsVerticalScrollIndicator={false}

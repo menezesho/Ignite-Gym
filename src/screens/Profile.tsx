@@ -1,6 +1,6 @@
 import { Center, Heading, ScrollView, Text, VStack } from "native-base";
 
-import { ScreenHeader } from "@components/ScreenHeader";
+import { ScreenHeader } from "@components/headers/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
 import { useState } from "react";
 import { Skeleton } from "@components/Skeleton";

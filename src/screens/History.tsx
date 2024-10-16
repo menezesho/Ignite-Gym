@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Heading, VStack, SectionList, Text } from "native-base";
 
-import { ScreenHeader } from "@components/ScreenHeader";
+import { ScreenHeader } from "@components/headers/ScreenHeader";
 import { HistoryCard } from "@components/HistoryCard";
 
 export function History() {
