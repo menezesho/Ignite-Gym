@@ -1,19 +1,31 @@
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { useForm, Controller } from 'react-hook-form';
 import { Image, VStack, Text, Center, Heading, View } from "native-base";
-
-import type { AuthNavigatorRoutesProps } from '@routes/auth.routes';
-
-import BackgroundImg from '@assets/background.png';
-import LogoSvg from '@assets/logo.svg';
 
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
+import BackgroundImg from '@assets/background.png';
+import LogoSvg from '@assets/logo.svg';
+
+type FormDataProps = {
+  name: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+}
+
 export function SignUp() {
+  const { control, handleSubmit } = useForm<FormDataProps>();
   const navigation = useNavigation();
 
   function handleGoBack() {
     navigation.goBack();
+  }
+
+  function handleSignUp(data: FormDataProps) {
+    console.log(data);
   }
 
   return (
@@ -40,23 +52,63 @@ export function SignUp() {
             Crie sua conta
           </Heading>
 
-          <Input
-            placeholder='Nome'
+          <Controller
+            control={control}
+            name='name'
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder='Nome'
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
           />
 
-          <Input
-            placeholder='E-mail'
-            keyboardType='email-address'
-            autoCapitalize='none'
-            autoCorrect={false}
+          <Controller
+            control={control}
+            name='email'
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder='E-mail'
+                keyboardType='email-address'
+                onChangeText={onChange}
+                autoCapitalize='none'
+                autoCorrect={false}
+                value={value}
+              />
+            )}
           />
 
-          <Input
-            placeholder='Senha'
-            secureTextEntry
+          <Controller
+            control={control}
+            name='password'
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder='Senha'
+                onChangeText={onChange}
+                secureTextEntry
+                value={value}
+              />
+            )}
           />
 
-          <Button title='Criar e acessar' />
+          <Controller
+            control={control}
+            name='passwordConfirmation'
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder='Confirmação da senha'
+                onChangeText={onChange}
+                secureTextEntry
+                value={value}
+              />
+            )}
+          />
+
+          <Button
+            title='Criar e acessar'
+            onPress={handleSubmit(handleSignUp)}
+          />
         </Center>
 
         <Button
