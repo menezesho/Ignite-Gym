@@ -17,6 +17,11 @@ export function Input({ ...rest }: IInputProps) {
         borderWidth: 1,
         borderColor: 'gray.500',
       }}
+      _disabled={{
+        bg: 'gray.500',
+        color: 'gray.500',
+      }}
+
       {...rest}
     />
   );
