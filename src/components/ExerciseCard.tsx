@@ -12,7 +12,7 @@ type Props = TouchableOpacityProps & {
 export function ExerciseCard({ name, image, description, ...rest }: Props) {
   return (
     <TouchableOpacity {...rest}>
-      <HStack bg='gray.500' alignItems='center' px={2} pr={4} rounded='md' mb={3}>
+      <HStack bg='gray.500' alignItems='center' p={2} pr={4} rounded='md' mb={3}>
         <Image
           source={{ uri: image }}
           alt='Imagem do exercício'
@@ -20,7 +20,7 @@ export function ExerciseCard({ name, image, description, ...rest }: Props) {
           h={16}
           rounded='md'
           mr={4}
-          resizeMode='center'
+          resizeMode='cover'
         />
 
         <VStack flex={1}>
