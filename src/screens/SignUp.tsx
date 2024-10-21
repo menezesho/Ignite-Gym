@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { Image, VStack, Text, Center, Heading, View } from "native-base";
@@ -9,6 +8,9 @@ import { Button } from "@components/Button";
 import BackgroundImg from '@assets/background.png';
 import LogoSvg from '@assets/logo.svg';
 
+import { yupResolver } from '@hookform/resolvers/yup';
+import { signUpSchema } from '@utils/schemas/sign-up.schema';
+
 type FormDataProps = {
   name: string;
   email: string;
@@ -17,7 +19,9 @@ type FormDataProps = {
 }
 
 export function SignUp() {
-  const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>();
+  const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
+    resolver: yupResolver(signUpSchema)
+  });
   const navigation = useNavigation();
 
   function handleGoBack() {
@@ -55,9 +59,6 @@ export function SignUp() {
           <Controller
             control={control}
             name='name'
-            rules={{
-              required: 'Informe o nome'
-            }}
             render={({ field: { onChange, value } }) => (
               <Input
                 placeholder='Nome'
@@ -71,13 +72,6 @@ export function SignUp() {
           <Controller
             control={control}
             name='email'
-            rules={{
-              required: 'Informe o e-mail',
-              pattern: {
-                value: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
-                message: 'E-mail inválido'
-              }
-            }}
             render={({ field: { onChange, value } }) => (
               <Input
                 placeholder='E-mail'
@@ -94,13 +88,6 @@ export function SignUp() {
           <Controller
             control={control}
             name='password'
-            rules={{
-              required: 'Informe a senha',
-              minLength: {
-                value: 8,
-                message: 'A senha deve ter no mínimo 8 caracteres'
-              }
-            }}
             render={({ field: { onChange, value } }) => (
               <Input
                 placeholder='Senha'
@@ -115,9 +102,6 @@ export function SignUp() {
           <Controller
             control={control}
             name='passwordConfirmation'
-            rules={{
-              required: 'Informe a confirmação da senha',
-            }}
             render={({ field: { onChange, value } }) => (
               <Input
                 placeholder='Confirmação da senha'
