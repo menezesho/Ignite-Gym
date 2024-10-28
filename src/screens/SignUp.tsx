@@ -11,6 +11,8 @@ import LogoSvg from '@assets/logo.svg';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { signUpSchema } from '@utils/schemas/sign-up.schema';
 
+import { api } from '@services/api';
+
 type FormDataProps = {
   name: string;
   email: string;
@@ -28,8 +30,8 @@ export function SignUp() {
     navigation.goBack();
   }
 
-  function handleSignUp(data: FormDataProps) {
-    console.log(data);
+  async function handleSignUp({ name, email, password }: FormDataProps) {
+    const response = await api.post('/users', { name, email, password });
   }
 
   return (
