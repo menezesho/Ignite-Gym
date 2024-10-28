@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { Image, VStack, Text, Center, Heading, View } from "native-base";
+import { Image, VStack, Text, Center, Heading, View, ScrollView } from "native-base";
 
 import type { AuthNavigatorRoutesProps } from '@routes/auth.routes';
 
@@ -17,56 +17,59 @@ export function SignIn() {
   }
 
   return (
-    <VStack flex={1}>
-      <Image
-        source={BackgroundImg}
-        defaultSource={BackgroundImg}
-        alt='Pessoas treinando'
-        resizeMode='cover'
-        position='absolute'
-      />
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+      <VStack flex={1}>
+        <Image
+          source={BackgroundImg}
+          defaultSource={BackgroundImg}
+          alt='Pessoas treinando'
+          resizeMode='cover'
+          position='absolute'
+        />
 
-      <View px={4}>
-        <Center my={24}>
-          <LogoSvg />
+        <View px={4}>
+          <Center my={24}>
+            <LogoSvg />
 
-          <Text color='gray.100' fontSize='sm'>
-            Treine sua mente e o seu corpo
-          </Text>
-        </Center>
+            <Text color='gray.100' fontSize='sm'>
+              Treine sua mente e o seu corpo
+            </Text>
+          </Center>
 
-        <Center>
-          <Heading fontFamily='heading' fontSize='xl' color='gray.100' mb={6}>
-            Acesse sua conta
-          </Heading>
+          <Center>
+            <Heading fontFamily='heading' fontSize='xl' color='gray.100' mb={6}>
+              Acesse sua conta
+            </Heading>
 
-          <Input
-            placeholder='E-mail'
-            keyboardType='email-address'
-            autoCapitalize='none'
-            autoCorrect={false}
-          />
+            <Input
+              placeholder='E-mail'
+              keyboardType='email-address'
+              autoCapitalize='none'
+              autoCorrect={false}
+            />
 
-          <Input
-            placeholder='Senha'
-            secureTextEntry
-          />
+            <Input
+              placeholder='Senha'
+              secureTextEntry
+            />
 
-          <Button title='Acessar' />
-        </Center>
+            <Button title='Acessar' />
+          </Center>
 
-        <Center mt={24}>
-          <Text color='gray.100' fontSize='sm' mb={3} fontFamily='body'>
-            Ainda não tem acesso?
-          </Text>
+          <Center mt={24}>
+            <Text color='gray.100' fontSize='sm' mb={3} fontFamily='body'>
+              Ainda não tem acesso?
+            </Text>
 
-          <Button
-            title='Criar conta'
-            variant='outline'
-            onPress={handleNewAccount}
-          />
-        </Center>
-      </View>
-    </VStack>
+            <Button
+              title='Criar conta'
+              variant='outline'
+              onPress={handleNewAccount}
+              mb={8}
+            />
+          </Center>
+        </View>
+      </VStack>
+    </ScrollView>
   );
 }
