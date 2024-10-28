@@ -120,12 +120,20 @@ export function SignUp() {
             />
           </Center>
 
-          <Button
-            title='Voltar para o login'
-            variant='outline' mt={24}
-            onPress={handleGoBack}
-            mb={8}
-          />
+          <Center mt={16}>
+            <Text color='gray.100' fontSize='sm' mb={3} fontFamily='body'>
+              Já possui uma conta?
+            </Text>
+
+            <Button
+              title='Voltar para o login'
+              variant='outline'
+              onPress={handleGoBack}
+              mb={8}
+            />
+          </Center>
+
+
         </View>
       </VStack>
     </ScrollView>

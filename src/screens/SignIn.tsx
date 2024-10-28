@@ -56,7 +56,7 @@ export function SignIn() {
             <Button title='Acessar' />
           </Center>
 
-          <Center mt={24}>
+          <Center mt={16}>
             <Text color='gray.100' fontSize='sm' mb={3} fontFamily='body'>
               Ainda não tem acesso?
             </Text>
