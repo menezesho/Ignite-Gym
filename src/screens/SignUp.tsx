@@ -9,7 +9,7 @@ import BackgroundImg from '@assets/background.png';
 import LogoSvg from '@assets/logo.svg';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import { signUpSchema } from '@utils/schemas/sign-up.schema';
+import { signUpSchema } from 'src/schemas/sign-up.schema';
 
 import { api } from '@services/api';
 
@@ -31,7 +31,7 @@ export function SignUp() {
   }
 
   async function handleSignUp({ name, email, password }: FormDataProps) {
-    const response = await api.post('/users', { name, email, password });
+    await api.post('/users', { name, email, password });
   }
 
   return (
