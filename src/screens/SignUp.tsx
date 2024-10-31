@@ -1,15 +1,17 @@
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
-import { Image, VStack, Text, Center, Heading, View, ScrollView } from "native-base";
-
-import { Input } from "@components/Input";
-import { Button } from "@components/Button";
+import { Image, VStack, Text, Center, Heading, View, ScrollView, useToast } from "native-base";
 
 import BackgroundImg from '@assets/background.png';
 import LogoSvg from '@assets/logo.svg';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { signUpSchema } from '@schemas/signUp.schema';
+import { useAuth } from '@hooks/useAuth';
+import { AppError } from '@utils/AppError';
+import { Input } from "@components/Input";
+import { Button } from "@components/Button";
 
 import { api } from '@services/api';
 
@@ -21,17 +23,42 @@ type FormDataProps = {
 }
 
 export function SignUp() {
-  const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
-    resolver: yupResolver(signUpSchema)
-  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { signIn } = useAuth();
+  const toast = useToast();
   const navigation = useNavigation();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormDataProps>({ resolver: yupResolver(signUpSchema) });
 
   function handleGoBack() {
     navigation.goBack();
   }
 
   async function handleSignUp({ name, email, password }: FormDataProps) {
-    await api.post('/users', { name, email, password });
+    try {
+      setIsLoading(true);
+
+      await api.post('/users', { name, email, password });
+      await signIn(email, password);
+
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError ? error.message : 'Erro na criação de conta';
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+        color: 'white',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -118,6 +145,7 @@ export function SignUp() {
 
             <Button
               title='Criar e acessar'
+              isLoading={isLoading}
               onPress={handleSubmit(handleSignUp)}
             />
           </Center>
