@@ -8,7 +8,7 @@ type Props = IPressableProps & {
 export function Group({ name, isActive = false, ...rest }: Props) {
   return (
     <Pressable
-      mr={3}
+      mr={2}
       w={24}
       h={10}
       bg='gray.600'

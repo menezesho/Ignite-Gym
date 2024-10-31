@@ -8,11 +8,13 @@ import { ExerciseDTO } from "@dtos/ExerciseDTO";
 import { HomeHeader } from "@components/headers/HomeHeader";
 import { Group } from "@components/Group";
 import { ExerciseCard } from "@components/ExerciseCard";
-import { Skeleton } from "@components/Skeleton";
+import { LoadingGroupCards } from "@components/loading/LoadingGroupCards";
+import { LoadingExerciseCards } from "@components/loading/LoadingExerciseCards";
 
 
 export function Home() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingGroups, setIsLoadingGroups] = useState<boolean>(false);
+  const [isLoadingExercises, setIsLoadingExercises] = useState<boolean>(false);
   const [selectedGroup, setSelectedGroup] = useState<string>('');
   const [groups, setGroups] = useState<string[]>([]);
   const [exercises, setExercises] = useState<ExerciseDTO[]>([]);
@@ -26,7 +28,7 @@ export function Home() {
 
   async function fetchGroups() {
     try {
-      setIsLoading(true);
+      setIsLoadingGroups(true);
       const { data } = await api.get('/groups');
       setGroups(data);
       setSelectedGroup(data[0]);
@@ -42,13 +44,13 @@ export function Home() {
         color: 'white',
       });
     } finally {
-      setIsLoading(false);
+      setIsLoadingGroups(false);
     }
   }
 
   async function fetchExercisesByGroup() {
     try {
-      setIsLoading(true);
+      setIsLoadingExercises(true);
       const { data } = await api.get('/exercises/bygroup/'.concat(selectedGroup));
       setExercises(data as ExerciseDTO[]);
     } catch (error) {
@@ -63,7 +65,7 @@ export function Home() {
         color: 'white',
       });
     } finally {
-      setIsLoading(false);
+      setIsLoadingExercises(false);
     }
   }
 
@@ -79,23 +81,29 @@ export function Home() {
     <VStack flex={1}>
       <HomeHeader />
 
-      <FlatList
-        data={groups}
-        keyExtractor={item => item}
-        renderItem={({ item }) => (
-          <Group
-            name={item}
-            isActive={selectedGroup.toLocaleUpperCase() === item.toLocaleUpperCase()}
-            onPress={() => setSelectedGroup(item)}
-          />
-        )}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        _contentContainerStyle={{ px: 4 }}
-        my={8}
-        minH={10}
-        maxH={10}
-      />
+      {isLoadingGroups && (
+        <LoadingGroupCards />
+      )}
+
+      {!isLoadingGroups && (
+        <FlatList
+          data={groups}
+          keyExtractor={item => item}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          _contentContainerStyle={{ px: 4 }}
+          my={8}
+          minH={10}
+          maxH={10}
+          renderItem={({ item }) => (
+            <Group
+              name={item}
+              isActive={selectedGroup.toLocaleUpperCase() === item.toLocaleUpperCase()}
+              onPress={() => setSelectedGroup(item)}
+            />
+          )}
+        />
+      )}
 
       <VStack flex={1} px={4}>
         <HStack justifyContent='space-between' mb={4}>
@@ -108,20 +116,11 @@ export function Home() {
           </Text>
         </HStack>
 
-        {isLoading ? (
-          <FlatList
-            data={Array.from({ length: 5 })}
-            keyExtractor={(_, index) => index.toString()}
-            showsVerticalScrollIndicator={false}
-            renderItem={() => (
-              <Skeleton
-                h={20}
-                mb={4}
-                rounded='md'
-              />
-            )}
-          />
-        ) : (
+        {isLoadingExercises && (
+          <LoadingExerciseCards />
+        )}
+
+        {!isLoadingExercises && (
           <FlatList
             data={exercises}
             keyExtractor={item => item.id.toString()}
