@@ -3,19 +3,17 @@ import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { Image, VStack, Text, Center, Heading, View, ScrollView, useToast } from "native-base";
 
-import type { AuthNavigatorRoutesProps } from '@routes/auth.routes';
+import { AuthNavigatorRoutesProps } from '@routes/auth.routes';
 
 import BackgroundImg from '@assets/background.png';
 import LogoSvg from '@assets/logo.svg';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { signInSchema } from '@schemas/signIn.schema';
-
 import { useAuth } from '@hooks/useAuth';
-
+import { AppError } from '@utils/AppError';
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
-import { AppError } from '@utils/AppError';
 
 type FormDataProps = {
   email: string;
@@ -25,13 +23,14 @@ type FormDataProps = {
 export function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
-    resolver: yupResolver(signInSchema)
-  });
-  const navigation = useNavigation<AuthNavigatorRoutesProps>();
-  const toast = useToast();
-
   const { signIn } = useAuth();
+  const toast = useToast();
+  const navigation = useNavigation<AuthNavigatorRoutesProps>();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormDataProps>({ resolver: yupResolver(signInSchema) });
 
   function handleNewAccount() {
     navigation.navigate('signUp');

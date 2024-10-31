@@ -1,11 +1,14 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { storageUserGet, storageUserSave } from "@storage/storageUser";
+import { storageUserGet, storageUserRemove, storageUserSave } from "@storage/storageUser";
+import { useToast } from "native-base";
 import { UserDTO } from "@dtos/UserDTO";
 import { api } from "@services/api";
+import { Alert } from "react-native";
 
 export type AuthContextDataProps = {
   user: UserDTO;
   signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 type AuthContextProviderProps = {
@@ -17,14 +20,39 @@ export const AuthContext = createContext<AuthContextDataProps>({} as AuthContext
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
   const [user, setUser] = useState<UserDTO>({} as UserDTO);
 
+  //caixa de alerta para o usuário
+  const toast = useToast();
+
   async function signIn(email: string, password: string) {
     try {
       const { data } = await api.post('/sessions', { email, password });
 
       if (data.user) {
         setUser(data.user);
-        storageUserSave(data.user);
+        await storageUserSave(data.user);
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function signOut() {
+    Alert.alert('Sair', 'Deseja realmente sair?', [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {
+        text: 'Sair',
+        onPress: confirmSignOut,
+      },
+    ]);
+  }
+
+  async function confirmSignOut() {
+    try {
+      setUser({} as UserDTO);
+      await storageUserRemove();
     } catch (error) {
       throw error;
     }
@@ -43,7 +71,11 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, signIn }}>
+    <AuthContext.Provider
+      value={{
+        user, signIn, signOut
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
