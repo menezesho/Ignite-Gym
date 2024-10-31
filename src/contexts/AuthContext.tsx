@@ -9,6 +9,7 @@ export type AuthContextDataProps = {
   user: UserDTO;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  isLoadingStorageData: boolean;
 }
 
 type SaveUserAndTokenProps = {
@@ -23,6 +24,7 @@ type AuthContextProviderProps = {
 export const AuthContext = createContext<AuthContextDataProps>({} as AuthContextDataProps);
 
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
+  const [isLoadingStorageData, setIsLoadingStorageData] = useState<boolean>(true);
   const [user, setUser] = useState<UserDTO>({} as UserDTO);
 
   async function signIn(email: string, password: string) {
@@ -32,7 +34,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       if (data.user && data.token) {
         await storageUserSave(data.user);
         await storageAuthTokenSave(data.token);
-        await updateUserAndToken(data.user);
+        updateUserAndToken(data);
       }
     } catch (error) {
       throw error;
@@ -54,11 +56,16 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   async function confirmSignOut() {
     try {
+      setIsLoadingStorageData(true);
+
       setUser({} as UserDTO);
+
       await storageUserRemove();
       await storageAuthTokenRemove();
     } catch (error) {
       throw error;
+    } finally {
+      setIsLoadingStorageData(false);
     }
   }
 
@@ -68,11 +75,19 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   }
 
   async function loadUserData() {
-    const user = await storageUserGet();
-    const token = await storageAuthTokenGet();
+    try {
+      setIsLoadingStorageData(true);
 
-    if (token && user) {
-      updateUserAndToken({ user, token });
+      const user = await storageUserGet();
+      const token = await storageAuthTokenGet();
+
+      if (token && user) {
+        updateUserAndToken({ user, token });
+      }
+    } catch (error) {
+      throw error;
+    } finally {
+      setIsLoadingStorageData(false);
     }
   }
 
@@ -81,11 +96,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user, signIn, signOut
-      }}
-    >
+    <AuthContext.Provider value={{ user, signIn, signOut, isLoadingStorageData }}>
       {children}
     </AuthContext.Provider>
   );
