@@ -1,22 +1,79 @@
-import { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { FlatList, Heading, HStack, Text, VStack } from "native-base";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { FlatList, Heading, HStack, Text, useToast, VStack } from "native-base";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
-
+import { AppError } from "@utils/AppError";
+import { api } from "@services/api";
+import { ExerciseDTO } from "@dtos/ExerciseDTO";
 import { HomeHeader } from "@components/headers/HomeHeader";
 import { Group } from "@components/Group";
 import { ExerciseCard } from "@components/ExerciseCard";
+import { Skeleton } from "@components/Skeleton";
+
 
 export function Home() {
-  const navigation = useNavigation<AppNavigatorRoutesProps>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedGroup, setSelectedGroup] = useState<string>('');
+  const [groups, setGroups] = useState<string[]>([]);
+  const [exercises, setExercises] = useState<ExerciseDTO[]>([]);
 
-  const [selectedGroup, setSelectedGroup] = useState('costas');
-  const [groups, setGroups] = useState(['costas', 'ombros', 'biceps', 'triceps', 'peito', 'pernas', 'abdomen']);
-  const [exercises, setExercises] = useState(['Remada lateral', 'Puxada frontal', 'Remada unilateral']);
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
+  const toast = useToast();
 
   function handleOpenExerciseDetails() {
     navigation.navigate('exercise');
   }
+
+  async function fetchGroups() {
+    try {
+      setIsLoading(true);
+      const { data } = await api.get('/groups');
+      setGroups(data);
+      setSelectedGroup(data[0]);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError ? error.message : 'Erro ao carregar grupos musculares';
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+        color: 'white',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function fetchExercisesByGroup() {
+    try {
+      setIsLoading(true);
+      const { data } = await api.get('/exercises/bygroup/'.concat(selectedGroup));
+      setExercises(data as ExerciseDTO[]);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError ? error.message : 'Erro ao carregar grupos musculares';
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+        color: 'white',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  useFocusEffect(useCallback(() => {
+    fetchExercisesByGroup();
+  }, [selectedGroup]));
 
   return (
     <VStack flex={1}>
@@ -51,20 +108,34 @@ export function Home() {
           </Text>
         </HStack>
 
-        <FlatList
-          data={exercises}
-          keyExtractor={item => item}
-          renderItem={({ item }) => (
-            <ExerciseCard
-              name={item}
-              image='https://conteudo.imguol.com.br/c/entretenimento/f9/2019/08/27/remada-na-maquina-1566927337178_v2_1036x685.jpg'
-              description='3 séries de 10 repetições'
-              onPress={handleOpenExerciseDetails}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-          _contentContainerStyle={{ paddingBottom: 20 }}
-        />
+        {isLoading ? (
+          <FlatList
+            data={Array.from({ length: 5 })}
+            keyExtractor={(_, index) => index.toString()}
+            showsVerticalScrollIndicator={false}
+            renderItem={() => (
+              <Skeleton
+                width='100%'
+                height={90}
+                borderRadius={8}
+                mb={4}
+              />
+            )}
+          />
+        ) : (
+          <FlatList
+            data={exercises}
+            keyExtractor={item => item.id.toString()}
+            showsVerticalScrollIndicator={false}
+            _contentContainerStyle={{ paddingBottom: 20 }}
+            renderItem={({ item }) => (
+              <ExerciseCard
+                item={item}
+                onPress={handleOpenExerciseDetails}
+              />
+            )}
+          />
+        )}
       </VStack>
     </VStack>
   );
