@@ -20,14 +20,11 @@ export const AuthContext = createContext<AuthContextDataProps>({} as AuthContext
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
   const [user, setUser] = useState<UserDTO>({} as UserDTO);
 
-  //caixa de alerta para o usuário
-  const toast = useToast();
-
   async function signIn(email: string, password: string) {
     try {
       const { data } = await api.post('/sessions', { email, password });
 
-      if (data.user) {
+      if (data.user && data.token) {
         setUser(data.user);
         await storageUserSave(data.user);
       }
