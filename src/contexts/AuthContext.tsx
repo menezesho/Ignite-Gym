@@ -1,14 +1,19 @@
+import { Alert } from "react-native";
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { storageUserGet, storageUserRemove, storageUserSave } from "@storage/storageUser";
-import { useToast } from "native-base";
+import { storageAuthTokenSave } from "@storage/storageAuthToken";
 import { UserDTO } from "@dtos/UserDTO";
 import { api } from "@services/api";
-import { Alert } from "react-native";
 
 export type AuthContextDataProps = {
   user: UserDTO;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+}
+
+type SaveUserAndTokenProps = {
+  user: UserDTO;
+  token: string;
 }
 
 type AuthContextProviderProps = {
@@ -25,8 +30,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       const { data } = await api.post('/sessions', { email, password });
 
       if (data.user && data.token) {
-        setUser(data.user);
-        await storageUserSave(data.user);
+        await saveUserAndToken(data);
       }
     } catch (error) {
       throw error;
@@ -50,6 +54,18 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     try {
       setUser({} as UserDTO);
       await storageUserRemove();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function saveUserAndToken({ user, token }: SaveUserAndTokenProps) {
+    try {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      await storageUserSave(user);
+      await storageAuthTokenSave(token);
+      setUser(user);
     } catch (error) {
       throw error;
     }
