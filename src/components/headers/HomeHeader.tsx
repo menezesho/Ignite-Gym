@@ -10,7 +10,7 @@ export function HomeHeader() {
   const { user, signOut } = useAuth();
 
   return (
-    <HStack bg='gray.600' pt={16} pb={5} px={8} alignItems='center'>
+    <HStack bg='gray.600' pt={16} pb={5} px={4} alignItems='center'>
       <UserPhoto
         source={user.avatar ? { uri: 'https://github.com/menezesho.png' } : defaultUserPhotoImg}
         alt='Foto de perfil do usuário'

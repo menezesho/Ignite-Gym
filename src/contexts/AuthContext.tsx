@@ -1,7 +1,7 @@
 import { Alert } from "react-native";
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { storageUserGet, storageUserRemove, storageUserSave } from "@storage/storageUser";
-import { storageAuthTokenSave } from "@storage/storageAuthToken";
+import { storageAuthTokenGet, storageAuthTokenRemove, storageAuthTokenSave } from "@storage/storageAuthToken";
 import { UserDTO } from "@dtos/UserDTO";
 import { api } from "@services/api";
 
@@ -30,7 +30,9 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       const { data } = await api.post('/sessions', { email, password });
 
       if (data.user && data.token) {
-        await saveUserAndToken(data);
+        await storageUserSave(data.user);
+        await storageAuthTokenSave(data.token);
+        await updateUserAndToken(data.user);
       }
     } catch (error) {
       throw error;
@@ -54,28 +56,23 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     try {
       setUser({} as UserDTO);
       await storageUserRemove();
+      await storageAuthTokenRemove();
     } catch (error) {
       throw error;
     }
   }
 
-  async function saveUserAndToken({ user, token }: SaveUserAndTokenProps) {
-    try {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      await storageUserSave(user);
-      await storageAuthTokenSave(token);
-      setUser(user);
-    } catch (error) {
-      throw error;
-    }
+  async function updateUserAndToken({ user, token }: SaveUserAndTokenProps) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setUser(user);
   }
 
   async function loadUserData() {
-    const loggedUser = await storageUserGet();
+    const user = await storageUserGet();
+    const token = await storageAuthTokenGet();
 
-    if (loggedUser) {
-      setUser(loggedUser);
+    if (token && user) {
+      updateUserAndToken({ user, token });
     }
   }
 
