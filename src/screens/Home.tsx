@@ -115,10 +115,9 @@ export function Home() {
             showsVerticalScrollIndicator={false}
             renderItem={() => (
               <Skeleton
-                width='100%'
-                height={90}
-                borderRadius={8}
+                h={20}
                 mb={4}
+                rounded='md'
               />
             )}
           />

@@ -3,22 +3,24 @@ import { Heading, HStack, Image, VStack, Text, Icon } from "native-base";
 
 import { MaterialIcons } from '@expo/vector-icons';
 import type { ExerciseDTO } from "@dtos/ExerciseDTO";
+import { api } from "@services/api";
 
 type Props = TouchableOpacityProps & {
   item: ExerciseDTO;
 }
 
 export function ExerciseCard({ item, ...rest }: Props) {
+  const thumbUri = api.defaults.baseURL?.concat('/exercise/thumb/', item.thumb);
   return (
     <TouchableOpacity {...rest}>
       <HStack bg='gray.500' alignItems='center' p={2} pr={4} rounded='md' mb={3}>
         <Image
-          source={{ uri: item.thumb }}
+          source={{ uri: thumbUri }}
           alt='Imagem do exercício'
           w={16}
           h={16}
-          rounded='md'
           mr={4}
+          rounded='md'
           resizeMode='cover'
         />
 
