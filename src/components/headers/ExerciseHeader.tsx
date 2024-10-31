@@ -6,8 +6,13 @@ import { Feather } from '@expo/vector-icons';
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 import BodySvg from '@assets/body.svg';
+import type { ExerciseDTO } from "@dtos/ExerciseDTO";
 
-export function ExerciseHeader() {
+type Props = {
+  item: ExerciseDTO;
+}
+
+export function ExerciseHeader({ item }: Props) {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
 
   function handleGoBack() {
@@ -27,13 +32,13 @@ export function ExerciseHeader() {
 
       <HStack justifyContent='space-between' mt={4} mb={8} alignItems='center'>
         <Heading fontFamily='heading' color='gray.100' fontSize='lg' flexShrink={1}>
-          Puxada frontal
+          {item.name ?? 'Nome não informado'}
         </Heading>
 
         <HStack alignItems='center'>
           <BodySvg />
           <Text color='gray.200' ml={1} textTransform='capitalize'>
-            Costas
+            {item.group ?? 'Grupo não informado'}
           </Text>
         </HStack>
       </HStack>

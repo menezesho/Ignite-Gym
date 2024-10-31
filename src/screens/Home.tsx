@@ -22,8 +22,8 @@ export function Home() {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const toast = useToast();
 
-  function handleOpenExerciseDetails() {
-    navigation.navigate('exercise');
+  function handleOpenExerciseDetails(exerciseId: number) {
+    navigation.navigate('exercise', { exerciseId });
   }
 
   async function fetchGroups() {
@@ -56,7 +56,7 @@ export function Home() {
     } catch (error) {
       const isAppError = error instanceof AppError;
 
-      const title = isAppError ? error.message : 'Erro ao carregar grupos musculares';
+      const title = isAppError ? error.message : 'Erro ao carregar exercícios';
 
       toast.show({
         title,
@@ -129,7 +129,7 @@ export function Home() {
             renderItem={({ item }) => (
               <ExerciseCard
                 item={item}
-                onPress={handleOpenExerciseDetails}
+                onPress={() => handleOpenExerciseDetails(item.id)}
               />
             )}
           />
