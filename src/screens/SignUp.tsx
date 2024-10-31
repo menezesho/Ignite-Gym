@@ -9,7 +9,7 @@ import BackgroundImg from '@assets/background.png';
 import LogoSvg from '@assets/logo.svg';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import { signUpSchema } from 'src/schemas/sign-up.schema';
+import { signUpSchema } from '@schemas/signUp.schema';
 
 import { api } from '@services/api';
 

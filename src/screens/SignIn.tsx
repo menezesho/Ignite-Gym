@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import { Image, VStack, Text, Center, Heading, View, ScrollView, useToast } from "native-base";
@@ -8,7 +9,7 @@ import BackgroundImg from '@assets/background.png';
 import LogoSvg from '@assets/logo.svg';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import { signInSchema } from '@schemas/sign-in.schema';
+import { signInSchema } from '@schemas/signIn.schema';
 
 import { useAuth } from '@hooks/useAuth';
 
@@ -22,6 +23,8 @@ type FormDataProps = {
 }
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
     resolver: yupResolver(signInSchema)
   });
@@ -36,6 +39,7 @@ export function SignIn() {
 
   async function handleSignIn({ email, password }: FormDataProps) {
     try {
+      setIsLoading(true);
       await signIn(email, password);
     } catch (error) {
       const isAppError = error instanceof AppError;
@@ -48,6 +52,8 @@ export function SignIn() {
         bgColor: 'red.500',
         color: 'white',
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -108,6 +114,7 @@ export function SignIn() {
 
             <Button
               title='Acessar'
+              isLoading={isLoading}
               onPress={handleSubmit(handleSignIn)}
             />
           </Center>
