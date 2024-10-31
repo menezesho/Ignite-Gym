@@ -29,7 +29,6 @@ export function Exercise() {
     try {
       setIsLoading(true);
       const { data } = await api.get('/exercises/'.concat(exerciseId.toString()));
-      console.log(exerciseId);
       setExercise(data);
     } catch (error) {
       const isAppError = error instanceof AppError;
