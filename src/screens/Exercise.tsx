@@ -52,7 +52,7 @@ export function Exercise() {
   async function handleExerciseComplete() {
     try {
       setIsCompleting(true);
-      api.post('/history/', { exercise_id: exerciseId });
+      await api.post('/history/', { exercise_id: exerciseId });
 
       toast.show({
         title: 'Exercício marcado como realizado',
