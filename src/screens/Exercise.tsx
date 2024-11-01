@@ -19,7 +19,7 @@ export function Exercise() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [exercise, setExercise] = useState<ExerciseDTO>({} as ExerciseDTO);
 
-  const thumbUri = exercise ? api.defaults.baseURL?.concat('/exercise/thumb/', exercise!.thumb) : '';
+  const thumbUri = exercise ? api.defaults.baseURL?.concat('/exercise/demo/', exercise!.demo) : '';
 
   const toast = useToast();
   const route = useRoute();
@@ -61,15 +61,15 @@ export function Exercise() {
       {!isLoading && (
         <ScrollView>
           <VStack p={4}>
-            <Image
-              w='full'
-              h={80}
-              source={{ uri: thumbUri }}
-              alt={exercise.name ?? 'Imagem do exercício'}
-              mb={3}
-              resizeMode='cover'
-              rounded='lg'
-            />
+            <Box rounded='lg' mb={3} overflow='hidden'>
+              <Image
+                w='full'
+                h={80}
+                source={{ uri: thumbUri }}
+                alt={exercise.name ?? 'Imagem do exercício'}
+                resizeMode='cover'
+              />
+            </Box>
 
             <Box bg='gray.600' rounded='md' pb={4} px={4}>
               <HStack alignItems='center' justifyContent='space-around' mb={6} mt={5}>
