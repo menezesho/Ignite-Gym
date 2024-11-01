@@ -1,28 +1,31 @@
 import { useEffect, useState } from "react";
 import { Box, HStack, Image, Text, VStack, ScrollView, useToast } from "native-base";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { api } from "@services/api";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
 import { AppError } from "@utils/AppError";
 import { Button } from "@components/Button";
 import { ExerciseHeader } from "@components/headers/ExerciseHeader";
+import { LoadingExercise } from "@components/loading/LoadingExercise";
 
 import SeriesSvg from '@assets/series.svg';
 import RepetitionsSvg from '@assets/repetitions.svg';
-import { LoadingExercise } from "@components/loading/LoadingExercise";
+import type { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 type RouteParams = {
   exerciseId: number;
 }
 
 export function Exercise() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isCompleting, setIsCompleting] = useState<boolean>(false);
   const [exercise, setExercise] = useState<ExerciseDTO>({} as ExerciseDTO);
 
   const thumbUri = exercise ? api.defaults.baseURL?.concat('/exercise/demo/', exercise!.demo) : '';
 
   const toast = useToast();
   const route = useRoute();
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
   const { exerciseId } = route.params as RouteParams;
 
   async function fetchExercise() {
@@ -43,6 +46,35 @@ export function Exercise() {
       });
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleExerciseComplete() {
+    try {
+      setIsCompleting(true);
+      api.post('/history/', { exercise_id: exerciseId });
+
+      toast.show({
+        title: 'Exercício marcado como realizado',
+        placement: 'top',
+        bgColor: 'green.700',
+        color: 'white',
+      });
+
+      navigation.navigate('history');
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError ? error.message : 'Erro ao marcar exercício como realizado';
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+        color: 'white',
+      });
+    } finally {
+      setIsCompleting(false);
     }
   }
 
@@ -88,7 +120,11 @@ export function Exercise() {
                 </HStack>
               </HStack>
 
-              <Button title='Marcar como realizado' />
+              <Button
+                title='Marcar como realizado'
+                isLoading={isCompleting}
+                onPress={handleExerciseComplete}
+              />
             </Box>
           </VStack>
         </ScrollView>
