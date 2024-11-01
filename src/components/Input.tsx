@@ -30,7 +30,7 @@ export function Input({ errorMessage = null, ...rest }: Props) {
         }}
         _disabled={{
           bg: 'gray.500',
-          color: 'gray.500',
+          color: 'gray.100',
         }}
         {...rest}
       />
