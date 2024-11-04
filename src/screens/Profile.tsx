@@ -14,6 +14,8 @@ import { UserPhoto } from "@components/UserPhoto";
 import { Skeleton } from "@components/Skeleton";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
 
 const PHOTO_SIZE = 33;
 const MAX_PHOTO_SIZE_IN_MB = 1;
@@ -27,6 +29,7 @@ type FormDataProps = {
 }
 
 export function Profile() {
+  const [isUpdating, setIsUpdating] = useState(false);
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
   const [userPhoto, setUserPhoto] = useState('https://github.com/menezesho.png');
 
@@ -86,7 +89,34 @@ export function Profile() {
   }
 
   async function handleUpdate(data: FormDataProps) {
-    console.log(data);
+    try {
+      setIsUpdating(true);
+
+      await api.put('/users', {
+        name: data.name,
+        old_password: data.currentPassword,
+        password: data.newPassword,
+      });
+
+      toast.show({
+        title: 'Perfil atualizado com sucesso',
+        placement: 'top',
+        bgColor: 'green.500',
+      });
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError ? error.message : 'Erro ao atualizar perfil';
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+        color: 'white',
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   }
 
   return (
@@ -192,8 +222,9 @@ export function Profile() {
 
           <Button
             title='Atualizar'
-            mt={4}
+            isLoading={isUpdating}
             onPress={handleSubmit(handleUpdate)}
+            mt={4}
           />
         </Center>
       </ScrollView>
