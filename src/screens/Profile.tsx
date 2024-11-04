@@ -34,7 +34,7 @@ export function Profile() {
   const [userPhoto, setUserPhoto] = useState('https://github.com/menezesho.png');
 
   const toast = useToast();
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const {
     control,
     handleSubmit,
@@ -92,11 +92,16 @@ export function Profile() {
     try {
       setIsUpdating(true);
 
+      const userUpdated = user;
+      userUpdated.name = data.name;
+
       await api.put('/users', {
         name: data.name,
         old_password: data.currentPassword,
         password: data.newPassword,
       });
+
+      await updateUserProfile(userUpdated);
 
       toast.show({
         title: 'Perfil atualizado com sucesso',
