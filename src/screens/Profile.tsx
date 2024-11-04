@@ -17,6 +17,8 @@ import { Button } from "@components/Button";
 import { api } from "@services/api";
 import { AppError } from "@utils/AppError";
 
+import defaultUserPhotoImg from '@assets/userPhotoDefault.png';
+
 const PHOTO_SIZE = 33;
 const MAX_PHOTO_SIZE_IN_MB = 1;
 
@@ -31,7 +33,6 @@ type FormDataProps = {
 export function Profile() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
-  const [userPhoto, setUserPhoto] = useState('https://github.com/menezesho.png');
 
   const toast = useToast();
   const { user, updateUserProfile } = useAuth();
@@ -80,7 +81,32 @@ export function Profile() {
         return;
       }
 
-      setUserPhoto(photoUri);
+      const fileExtension = photoUri.split('.').pop();
+
+      const photoFile = {
+        name: `${user.name}.${fileExtension}`.toLowerCase(),
+        uri: photoUri,
+        type: `${photo.assets[0].type}/${fileExtension}`,
+      } as any;
+
+      const userPhotoUploadForm = new FormData();
+      userPhotoUploadForm.append('avatar', photoFile);
+
+      const avatarUpdatedResponse = await api.patch('/users/avatar', userPhotoUploadForm, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+
+      const userUpdated = user;
+      userUpdated.avatar = avatarUpdatedResponse.data.avatar;
+      await updateUserProfile(userUpdated);
+
+      toast.show({
+        title: 'Foto atualizada',
+        placement: 'top',
+        bgColor: 'green.500',
+      });
     } catch (error) {
       console.error(error);
     } finally {
@@ -137,7 +163,10 @@ export function Profile() {
               rounded='full'
             /> :
             <UserPhoto
-              source={{ uri: userPhoto }}
+              source={
+                user.avatar
+                  ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                  : defaultUserPhotoImg}
               alt='Foto de perfil do usuário'
               size={PHOTO_SIZE}
             />
